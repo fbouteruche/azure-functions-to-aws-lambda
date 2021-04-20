@@ -1,0 +1,18 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+# ignore visual studio files
+/.vs
+**/.vs
+
+# ignore bin folders
+**/bin
+
+# ignore obj folders
+**/obj
+
+# ignore SAM CLI files
+**/.aws-sam
+
+
