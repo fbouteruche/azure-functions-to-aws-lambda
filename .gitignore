@@ -16,3 +16,5 @@
 **/.aws-sam
 
 
+/AwsLambdaAspNetCoreApi/AmazonMQMessageProducer/appsettings.Development.json
+/AwsLambdaAspNetCoreApi/AmazonMQMessageProducer/AmazonMQMessageProducer.csproj.user
