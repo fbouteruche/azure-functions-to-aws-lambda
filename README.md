@@ -4,7 +4,7 @@ This repository contains code samples to explain how to migrate .NET code from A
 
 It contains three subfolders:
 * [AzureFunctionsApi](./AzureFunctionsApi) contains the base solution with the Azure Function source code to migrate
-* [AWSLambdaAspNetCoreApi](./AWSLambdaAspNetCoreApi) contains a migrated solution based on running an ASP.NET Core Api on AWS Lambda
+* [AwsLambdaAspNetCoreApi](./AwsLambdaAspNetCoreApi) contains a migrated solution based on running an ASP.NET Core Api on AWS Lambda
 * [AwsLambdaNetCoreApi](./AwsLambdaNetCoreApi) contains a migrated solution based on running raw Lambda Functions in .NET
 
 ## Azure Functions Api
