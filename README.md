@@ -32,6 +32,10 @@ the invocation via API Gateway. API Gateway passes all the information about the
 The AWSLambdaASPNetCoreApi solution implements an AWS Serverless application composed of:
 * an API Gateway handling HTTP request and invoking the AWS Lambda function
 * an AWS Lambda function processing the HTTP request
+* an AWS Lambda function processing message from Amazon MQ ActiveMQ broker queue
+* an console application sending messages to an Amazon MQ ActiveMQ broker queue
+
+### Integrating API Gateway with ASP.NET Core Web API hosted on AWS Lambda
 
 The API Gateway is implicitly defined through the *serverless.template* file. This file is a AWS Serverless Application Model template file. To learn more about
 the AWS Serverless Application Model, read [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html).
@@ -53,6 +57,32 @@ You can use the [AWS Toolkit for Visual Studio](https://docs.aws.amazon.com/en_u
 to quickly deploy this solution into your AWS developer account and test it. As we use the ***Swashbuckle.AspNetCore*** Nuget package to automaticaly 
 generate the Swagger json documentation and the Swagger UI endpoints, you can browse the *https://<your_api_gateway_endpoint>/swagger* URL 
 to access the Swagger UI.
+
+### Processing Amazon MQ ActiveMQ message queue with AWS Lambda functions
+
+The solution also demonstrates how to integrate AWS Lambda Function with Amazon MQ ActiveMQ broker.
+
+In the AWSLambdaAspNetCoreApi project, you will find the class **ClientsMessageHandler** in the folder **MessageHandlers**. This class implement a method handling 
+**AmazonMQEvent**. This class is not provided by any Amazon provided NuGet packages. It has been implemented on purpose for this sample in the **Model** folder and
+gives the basic mapping between the events received by the handler method when messages are received from the queue.
+
+In the *serveless.template* file, we have defined a second AWS Lambda Function called *ClientsMessageHandlerFunction* at line 38. At line 41, we define the method
+**AwsLambdaAspNetCoreApi::AwsLambdaAspNetCoreApi.MessageHandlers.ClientsMessageHandler::CreateClientMessageHandler** as the handler methode. At line 47, we define the
+required policies to enable the AWS Lambda function to interact with the broker. At line 71, we bind our Lambda function to an event of type **MQ**. You have
+to provide the *ARN* of your own broker at line 74 and the *ARN* of you Secret Manager value allowing your Lambda function to connect to the broker at line 79. You must
+also define the queue your function is listening to at line 75.
+
+The broker must be deployed and the queue created before you deploy the SAM template.
+
+To deploy the broker, you can follow the first part of [this blog post](https://aws.amazon.com/blogs/compute/using-amazon-mq-as-an-event-source-for-aws-lambda/).
+
+### Sending messages to the Amazon MQ ActiveMQ message queue
+
+The solution also demonstrates how to send messages to your Amazon MQ ActiveMQ broker queue.
+
+The project AmazonMQMessageProducer demonstrates how to do this. The project uses the **Apache.NMS.ActiveMQ** NuGet package to send message to your broker queue.
+There is nothing specific to AWS here. To make this console app working, you have to provide a broker uri, a username and a password in the *appsettings.json* file
+so that the console app can connect to the broker.
 
 
 ## AWS Lambda .NET Core Api
