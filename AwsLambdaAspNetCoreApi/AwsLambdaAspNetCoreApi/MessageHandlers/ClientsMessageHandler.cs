@@ -1,4 +1,5 @@
 ﻿using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,13 @@ namespace AwsLambdaAspNetCoreApi.MessageHandlers
 {
     public class ClientsMessageHandler
     {
-        public string CreateClientMessageHandler(AmazonMQEvent request, ILambdaContext context)
+        /// <summary>
+        /// This methode handles events from an Amazon MQ ActiveMQ broker    
+        /// </summary>
+        /// <param name="request">the Amazon MQ event data</param>
+        /// <param name="context">the Lambda execution context</param>
+        /// <returns></returns>
+        public string CreateClientMQMessageHandler(AmazonMQEvent request, ILambdaContext context)
         {
             context.Logger.LogLine(request.ToString());
 
@@ -29,6 +36,15 @@ namespace AwsLambdaAspNetCoreApi.MessageHandlers
             }
 
             return JsonSerializer.Serialize(response, typeof(MessageHandlerResponse));
+        }
+
+        public string CreateClientSQSMessageHandler(SQSEvent request, ILambdaContext context)
+        {
+            foreach (SQSEvent.SQSMessage message in request.Records)
+            {
+                context.Logger.LogLine(message.Body);
+            }
+            return "messages processed";
         }
     }
 }

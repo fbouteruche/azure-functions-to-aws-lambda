@@ -39,7 +39,7 @@
   "ClientsMessageHandlerFunction": {
     "Type": "AWS::Serverless::Function",
     "Properties": {
-      "Handler": "AwsLambdaAspNetCoreApi::AwsLambdaAspNetCoreApi.MessageHandlers.ClientsMessageHandler::CreateClientMessageHandler",
+      "Handler": "AwsLambdaAspNetCoreApi::AwsLambdaAspNetCoreApi.MessageHandlers.ClientsMessageHandler::CreateClientMQMessageHandler",
       "Runtime": "dotnetcore3.1",
       "CodeUri": "",
       "MemorySize": 256,
@@ -80,6 +80,41 @@
                 "URI": "<your-secret-manager-value-arn>"
               }
             ]
+          }
+        }
+      }
+    }
+  },
+  "ClientsSQSMessageHandlerFunction": {
+    "Type": "AWS::Serverless::Function",
+    "Properties": {
+      "Handler": "AwsLambdaAspNetCoreApi::AwsLambdaAspNetCoreApi.MessageHandlers.ClientsMessageHandler::CreateClientSQSMessageHandler",
+      "Runtime": "dotnetcore3.1",
+      "CodeUri": "",
+      "MemorySize": 256,
+      "Timeout": 30,
+      "Role": null,
+      "Policies": [
+        {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Resource": "*",
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes"
+              ]
+            }
+          ]
+        }
+      ],
+      "Events": {
+        "SQEvents": {
+          "Type": "SQS",
+          "Properties": {
+            "Queue": "<your-queue-arn>",
+            "BatchSize": 10
           }
         }
       }
