@@ -2,10 +2,11 @@
 
 This repository contains code samples to explain how to migrate .NET code from Azure Functions to AWS Lambda.
 
-It contains three subfolders:
+It contains four subfolders:
 * [AzureFunctionsApi](./AzureFunctionsApi) contains the base solution with the Azure Function source code to migrate
 * [AwsLambdaAspNetCoreApi](./AwsLambdaAspNetCoreApi) contains a migrated solution based on running an ASP.NET Core Api on AWS Lambda
 * [AwsLambdaNetCoreApi](./AwsLambdaNetCoreApi) contains a migrated solution based on running raw Lambda Functions in .NET
+* [AWSFileUpload](./AWSFileUpload) contains a solution demonstrating how to handle file upload with Lambda and S3
 
 ## Azure Functions Api
 
@@ -97,3 +98,29 @@ The AWSLambdaNetCore Api implements such a solution. It relies only on the **Ama
 In the *serverless.template* file, you  define explicity for each path of your API which method to use as the handler like in lines 9 and 22.
 
 With this solution, you cannot use any **Swashbuckle** package to automatically generate the Swagger json documentation.
+
+## Uploading files with Amazon S3 and AWS Lambda
+
+This solution is an adaptation of [James Beswick's blog post](https://aws.amazon.com/blogs/compute/uploading-to-amazon-s3-directly-from-a-web-or-mobile-application/).
+It demonstrates how to handle file upload with Amazon S3 and AWS Lambda.
+
+While with Azure Functions, you will first upload the file to your function, process the file and then store it in an Azure Blob Storage, with Amazon S3 and AWS Lambda, 
+you will first a pre-signed URL and use it to upload your file directly to S3. When the file upload is complete, S3 sends an event that triggers your AWS Lambda and
+you can then process your file.
+
+Be aware that is not a production-ready solution. Especially regarding Cors settings.
+
+The solution contains an index.html file than you can use locally to test. When you have deployed the SAM template into your account, use the ApiURL output at line 29
+of the index.html to assign it to the **API_ENDPOINT** variable.
+
+The SAM template in *the serverless.template* file defines 4 resources:
+* The resource **Api** of type **AWS::Serverless::Api**. It allows to set up the Cors settings for the endpoint we use to get the pre-signed Url
+* The resource **GetUploadPresignedUrl** of type **AWS::Serverless::Function**. It defines the AWS Lambda function that handles the request for a pre-signed Url.
+* The resource **ProcessFiles** of type **AWS:Serverless::Function". It defines the AWS Lambda function that handles file processing.
+* The resource **UploadBucket** of type **AWS::S3::Bucket". It defines the Amazon S3 Bucket where the file is uploaded.
+
+The resource **GetUploadPresignedUrl** references the resource **UploadBucket** to set up IAM policies for the Lambda function and an environment variable so that
+the handler method can get dynamicaly for which bucket it must create a pre-signed Url.
+
+The resource **ProcessFiles** references the resource **UploadBucket** to set up the trigger event.
+
