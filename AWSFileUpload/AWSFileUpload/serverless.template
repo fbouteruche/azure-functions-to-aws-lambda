@@ -1,0 +1,109 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "An AWS Serverless Application.",
+  "Resources": {
+    "Api":{
+        "Type": "AWS::Serverless::Api",
+        "Properties":
+        {
+            "StageName": "Dev",
+            "Cors": {
+                "AllowOrigin": "'*'",
+                "AllowMethods": "'GET'",
+                "AllowHeaders": "'*'"
+            }
+        }
+    },
+    "GetUploadPresignedUrl": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "AWSFileUpload::AWSFileUpload.PresignedUrlHandlers::GetUploadPresignedUrl",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Environment":
+        {
+            "Variables":
+            {
+                "UploadBucket": { "Ref": "UploadBucket"}
+            }
+        },
+        "Policies": [
+          {  
+              "S3WritePolicy": {
+                "BucketName" : { "Ref": "UploadBucket"}
+              }
+          }
+        ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/",
+              "Method": "GET",
+              "RestApiId": { "Ref": "Api"}
+            }
+          }
+        }
+      }
+    },
+    "ProcessFiles": {
+        "Type": "AWS::Serverless::Function",
+        "Properties": {
+            "Handler": "AWSFileUpload::AWSFileUpload.ProcessFilesHandler::ProcessFileCreatedEvent",
+            "Runtime": "dotnetcore3.1",
+            "CodeUri": "",
+            "MemorySize": 256,
+            "Timeout": 30,
+            "Role": null,
+            "Events": {
+                "Upload": {
+                    "Type": "S3",
+                    "Properties": {
+                        "Bucket": { "Ref": "UploadBucket" },
+                        "Events": "s3:ObjectCreated:*",
+                        "Filter": {
+                            "S3Key": {
+                                "Rules": [
+                                   {
+                                    "Name": "prefix",
+                                    "Value": "upload"
+                                   }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "UploadBucket":
+    {
+        "Type": "AWS::S3::Bucket",
+        "DeletionPolicy": "Retain",
+        "Properties": {
+            "CorsConfiguration": {
+                "CorsRules":
+                [
+                {
+                    "AllowedHeaders": [ "*" ],
+                    "AllowedMethods": [ "HEAD", "GET", "PUT" ],
+                    "AllowedOrigins": [ "*" ]
+                }
+                ]
+            }
+        }
+    }
+  },
+  "Outputs": {
+    "ApiURL": {
+      "Description": "API endpoint URL for Dev environment",
+      "Value": {
+        "Fn::Sub": "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
+      }
+    }
+  }
+}
