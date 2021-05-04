@@ -84,6 +84,104 @@
         }
       }
     },
+    "VirtualTopicCreateClientConsumer1":{
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "AwsLambdaAspNetCoreApi::AwsLambdaAspNetCoreApi.MessageHandlers.ClientsMessageHandler::CreateClientMQMessageHandler",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Resource": "*",
+                    "Action": [
+                        "mq:DescribeBroker",
+                        "secretsmanager:GetSecretValue",
+                        "ec2:CreateNetworkInterface",
+                        "ec2:DescribeNetworkInterfaces",
+                        "ec2:DescribeVpcs",
+                        "ec2:DeleteNetworkInterface",
+                        "ec2:DescribeSubnets",
+                        "ec2:DescribeSecurityGroups",
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ]
+                }
+            ]
+          }
+        ],
+        "Events": {
+            "MQEvents": {
+                "Type": "MQ",
+                "Properties": {
+                    "Broker": "<your-broker-arn>",
+                    "Queues": ["Consumer.<your-consumer-unique-name>.VirtualTopic.<your-topic-name>"],
+                    "SourceAccessConfigurations": [
+                        {
+                            "Type": "BASIC_AUTH",
+                            "URI": "<your-secret-manager-value-arn>"
+                        }
+                    ]
+                }
+            }
+        }
+      }
+    },
+    "VirtualTopicCreateClientConsumer2":{
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "AwsLambdaAspNetCoreApi::AwsLambdaAspNetCoreApi.MessageHandlers.ClientsMessageHandler::CreateClientMQMessageHandler",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Resource": "*",
+                    "Action": [
+                        "mq:DescribeBroker",
+                        "secretsmanager:GetSecretValue",
+                        "ec2:CreateNetworkInterface",
+                        "ec2:DescribeNetworkInterfaces",
+                        "ec2:DescribeVpcs",
+                        "ec2:DeleteNetworkInterface",
+                        "ec2:DescribeSubnets",
+                        "ec2:DescribeSecurityGroups",
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ]
+                }
+            ]
+          }
+        ],
+        "Events": {
+            "MQEvents": {
+                "Type": "MQ",
+                "Properties": {
+                    "Broker": "<your-broker-arn>",
+                    "Queues": ["Consumer.<your-consumer-unique-name>.VirtualTopic.<your-topic-name>"],
+                    "SourceAccessConfigurations": [
+                        {
+                            "Type": "BASIC_AUTH",
+                            "URI": "<your-secret-manager-value-arn>"
+                        }
+                    ]
+                }
+            }
+        }
+      }
+    },
     "ClientsSQSMessageHandlerFunction":{
       "Type": "AWS::Serverless::Function",
       "Properties": {

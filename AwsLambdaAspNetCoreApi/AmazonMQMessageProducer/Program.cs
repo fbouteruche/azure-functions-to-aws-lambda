@@ -17,11 +17,12 @@ namespace AmazonMQMessageProducer
             if (string.IsNullOrEmpty(configuration["username"]) 
                 || string.IsNullOrEmpty(configuration["password"]) 
                 || string.IsNullOrEmpty(configuration["broker_uri"])
+                || string.IsNullOrEmpty(configuration["destination_type"])
                 || configuration["username"] == "<your-username>" 
                 || configuration["password"] == "<your-password>"
                 || configuration["broker_uri"] == "<your-borker-uri>")
             {
-                Console.WriteLine("you must provide valid values for username, password and broker_uri properties in the appsettings.json file");
+                Console.WriteLine("you must provide valid values for username, password, broker_uri and destination_type properties in the appsettings.json file");
                 return;
             }
             
@@ -30,7 +31,17 @@ namespace AmazonMQMessageProducer
             using (IConnection connection = factory.CreateConnection(configuration["username"], configuration["password"])) 
             using (ISession session = connection.CreateSession())
             {
-                IDestination destination = session.GetQueue("dotnet-queue");
+                IDestination destination = null;
+
+                if(configuration["destination_type"] == "topics")
+                {
+                    destination = session.GetTopic("VirtualTopic.<your-topic-name>");
+                }
+                else
+                {
+                    destination = session.GetQueue("<your-queue-name>");
+                }
+    
                 using (IMessageProducer producer = session.CreateProducer(destination))
                 {
                     connection.Start();
